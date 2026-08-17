@@ -3,7 +3,7 @@ resource "aws_launch_template" "lt_name" {
   image_id      = var.ami
   instance_type = var.cpu
   key_name      = var.key_name
-  user_data     = filebase64("../module/asg/config.sh")
+  user_data     = filebase64("${path.module}/config.sh")
 
 
   vpc_security_group_ids = [var.client_sg_id]
@@ -20,8 +20,8 @@ resource "aws_autoscaling_group" "asg_name" {
   desired_capacity          = var.desired_cap
   health_check_grace_period = 300
   health_check_type         = var.asg_health_check_type #"ELB" or default EC2
-  vpc_zone_identifier = [var.private_app_subnet_az1_id,var.private_app_subnet_az2_id]
-  target_group_arns   = [var.tg_arn] #var.target_group_arns
+  vpc_zone_identifier       = [var.private_app_subnet_az1_id, var.private_app_subnet_az2_id]
+  target_group_arns         = [var.tg_arn] #var.target_group_arns
 
   enabled_metrics = [
     "GroupMinSize",
@@ -35,7 +35,7 @@ resource "aws_autoscaling_group" "asg_name" {
 
   launch_template {
     id      = aws_launch_template.lt_name.id
-    version = aws_launch_template.lt_name.latest_version 
+    version = aws_launch_template.lt_name.latest_version
   }
 }
 
