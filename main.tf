@@ -1,5 +1,5 @@
 module "vpc" {
-  source                             = "../module/vpc"
+  source                             = "../modules/vpc"
   region                             = var.region
   project_name                       = var.project_name
   vpc_cidr                           = var.vpc_cidr
@@ -13,7 +13,7 @@ module "vpc" {
 }
 
 module "nat" {
-  source = "../module/nat"
+  source = "../modules/nat"
 
   public_subnet_az1_id              = module.vpc.public_subnet_az1_id
   internet_gateway                  = module.vpc.internet_gateway
@@ -26,18 +26,18 @@ module "nat" {
 }
 
 module "security-group" {
-  source = "../module/security-group"
+  source = "../modules/security-group"
   vpc_id = module.vpc.vpc_id
 }
 
 # creating Key for instances
 module "key" {
-  source = "../module/key"
+  source = "../modules/key"
 }
 
 # Creating Application Load balancer
 module "alb" {
-  source         = "../module/alb"
+  source         = "../modules/alb"
   project_name   = module.vpc.project_name
   alb_sg_id      = module.security-group.alb_sg_id
   public_subnet_az1_id = module.vpc.public_subnet_az1_id
@@ -46,7 +46,7 @@ module "alb" {
 }
 
 module "asg" {
-  source         = "../module/asg"
+  source         = "../modules/asg"
   project_name   = module.vpc.project_name
   key_name       = module.key.key_name
   client_sg_id   = module.security-group.client_sg_id
@@ -59,7 +59,7 @@ module "asg" {
 # creating RDS instance
 
 module "rds" {
-  source         = "../module/rds"
+  source         = "../modules/rds"
   db_sg_id       = module.security-group.db_sg_id
   private_data_subnet_az1_id = module.vpc.private_data_subnet_az1_id
   private_data_subnet_az2_id = module.vpc.private_data_subnet_az2_id
@@ -69,7 +69,7 @@ module "rds" {
 
 # create cloudfront distribution 
 module "cloudfront" {
-  source = "../module/cloudfront"
+  source = "../modules/cloudfront"
   certificate_domain_name = var.certificate_domain_name
   alb_domain_name = module.alb.alb_dns_name
   additional_domain_name = var.additional_domain_name
@@ -79,7 +79,7 @@ module "cloudfront" {
 # Add record in route 53 hosted zone
 
 module "route53" {
-  source = "../module/route53"
+  source = "../modules/route53"
   cloudfront_domain_name = module.cloudfront.cloudfront_domain_name
   cloudfront_hosted_zone_id = module.cloudfront.cloudfront_hosted_zone_id
 
